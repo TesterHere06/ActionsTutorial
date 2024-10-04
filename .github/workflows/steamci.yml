@@ -3,8 +3,7 @@ on:
   workflow_call:
   workflow_run:
     workflows: ['Automatic Build On Push']
-    types: [completed]
-	
+    types: [completed]	
 permissions:
    actions: read
 jobs:
