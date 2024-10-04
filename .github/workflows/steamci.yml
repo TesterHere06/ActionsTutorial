@@ -1,0 +1,32 @@
+name: Steam Deploy
+on: 
+  workflow_call:
+  workflow_run:
+    workflows: ['Automatic Build On Push']
+    types: [completed]
+	
+permissions:
+   actions: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+        with: 
+          name: igor-build-windows
+          path: downloads/igor-build-windows.zip
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract archives
+        run: |
+          7za x -y downloads/igor-build-windows.zip -owin/
+      - name: Upload to Steam
+        uses: game-ci/steam-deploy@v3.0.4
+        with:
+          username: ${{ secrets.STEAM_USERNAME }}          
+          configVdf: ${{ secrets.STEAM_CONFIG_VDF}}          
+          appId: YourAppIdHere
+          buildDescription: Build sent automatically by Github Actions
+          depot1Path: win
+          releaseBranch: prerelease
